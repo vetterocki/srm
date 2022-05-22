@@ -28,12 +28,16 @@ class NonLinearSystemSolver:
     def function(variables):
         x_1, x_2 = variables
 
+        if x_2 <= 0 or x_1 <= -7:
+            raise Exception("value <= 0 to log")
+
         return [x_1 - np.cos(x_2) - 1,
                 x_2 - np.log10(x_1 + 7) - 10]
 
     @staticmethod
     def jacobian_matrix(variables):
         x_1, x_2 = variables
+
         return [[1, np.sin(x_2)],
                 [(-1 / (np.log(10) * (x_1 + 1))), 1]]
 
@@ -86,13 +90,17 @@ class SimpleIteration(NonLinearSystemSolver):
         return self.__result
 
 
-x = [0, 1]
+try:
+    x = [0, 1]
 
-checker = fsolve(NonLinearSystemSolver.function, x, fprime=NonLinearSystemSolver.jacobian_matrix, full_output=1)
-print("Scipy перевірка:", list(checker[0]))
+    checker = fsolve(NonLinearSystemSolver.function, x, fprime=NonLinearSystemSolver.jacobian_matrix, full_output=1)
+    print("Scipy перевірка:", list(checker[0]))
 
-newton = Newton(x, 10e-4)
-print("Метод Ньютона:", newton.newton())
+    newton = Newton(x, 10e-4)
+    print("Метод Ньютона:", newton.newton())
 
-simple = SimpleIteration(x, 10e-4)
-print("Метод простих ітерацій:", simple.simple_iteration())
+    simple = SimpleIteration(x, 10e-4)
+    print("Метод простих ітерацій:", simple.simple_iteration())
+
+except Exception as ex:
+    print(ex.args)
